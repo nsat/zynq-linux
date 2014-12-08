@@ -96,11 +96,11 @@
             xlnx,slv-awidth = <0x20>;
             xlnx,slv-dwidth = <0x20>;
             xlnx,use-wstrb = <0x0>;
-            en_agc-gpios = <&ps7_gpio_0 66 0>;
-            sync-gpios = <&ps7_gpio_0 67 0>;
-            reset-gpios = <&ps7_gpio_0 68 0>;
-            enable-gpios = <&ps7_gpio_0 69 0>;
-            txnrx-gpios = <&ps7_gpio_0 70 0>;
+            en_agc-gpios = <&ps7_gpio_0 77 0>;
+            sync-gpios = <&ps7_gpio_0 78 0>;
+            reset-gpios = <&ps7_gpio_0 79 0>;
+            enable-gpios = <&ps7_gpio_0 80 0>;
+            txnrx-gpios = <&ps7_gpio_0 81 0>;
 		} ;
 /* TODO: find out if this is necessary to bring back into your img, or
  * to remove from the devtree
@@ -261,6 +261,55 @@
 			interrupts = <0 20 4>;
 			reg = <0xe000a000 0x1000>;
 		} ;
+            /* Named GPIOs, nonspecific (as named on motherboard)
+             * linux-gpio currently doesn't appear to support any
+             * method of aliasing GPIO names, so we comment this out
+             * for now.
+             */
+/*
+        named_gpios {
+            fmc_gpios = <&ps7_gpio_0 54 0>,
+                        <&ps7_gpio_0 55 0>,
+                        <&ps7_gpio_0 56 0>,
+                        <&ps7_gpio_0 57 0>,
+                        <&ps7_gpio_0 58 0>,
+                        <&ps7_gpio_0 59 0>,
+                        <&ps7_gpio_0 60 0>,
+                        <&ps7_gpio_0 61 0>,
+                        <&ps7_gpio_0 62 0>,
+                        <&ps7_gpio_0 63 0>,
+                        <&ps7_gpio_0 64 0>;
+
+            fmc_status_gpios = <&ps7_gpio_0 65 0>,
+                                <&ps7_gpio_0 66 0>,
+                                <&ps7_gpio_0 67 0>,
+                                <&ps7_gpio_0 68 0>,
+                                <&ps7_gpio_0 69 0>,
+                                <&ps7_gpio_0 70 0>,
+                                <&ps7_gpio_0 71 0>,
+                                <&ps7_gpio_0 72 0>;
+
+            fmc_ctrl_gpios = <&ps7_gpio_0 73 0>,
+                                <&ps7_gpio_0 74 0>,
+                                <&ps7_gpio_0 75 0>,
+                                <&ps7_gpio_0 76 0>;
+        };
+*/
+        gpio-leds {
+            compatible = "gpio-leds";
+            led-health {
+                label = "led-health";
+                gpios = <&ps7_gpio_0 9 0>;
+                default-state = "on";
+                linux,default-trigger = "heartbeat";
+            };
+            led-l13 {
+                label = "led-l13";
+                gpios = <&ps7_gpio_0 15 0>;
+                default-state = "off";
+            };
+        };
+
 		ps7_i2c_0: ps7-i2c@e0004000 {
 			bus-id = <0>;
 			clocks = <&clkc 38>;
@@ -292,6 +341,14 @@
                 compatible = "at,24c1024";
                 reg = <0x50>;
                 pagesize = <256>;
+            };
+            temp0: tmp102@4a {
+                compatible = "ti,tmp102";
+                reg = <0x4a>;
+            };
+            temp1: tmp102@4b {
+                compatible = "ti,tmp102";
+                reg = <0x4b>;
             };
 		} ;
 		ps7_iop_bus_config_0: ps7-iop-bus-config@e0200000 {
