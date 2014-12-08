@@ -289,7 +289,7 @@
                 reg = <0x68>;
             };
             eeprom: eeprom@50 {
-                compatible = "at,24c01";
+                compatible = "at,24c1024";
                 reg = <0x50>;
                 pagesize = <256>;
             };
