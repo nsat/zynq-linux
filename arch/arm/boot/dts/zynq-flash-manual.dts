@@ -300,13 +300,13 @@
             led-health {
                 label = "led-health";
                 gpios = <&ps7_gpio_0 9 0>;
-                default-state = "on";
-                linux,default-trigger = "heartbeat";
+                default-state = "off";
             };
             led-l13 {
                 label = "led-l13";
                 gpios = <&ps7_gpio_0 15 0>;
-                default-state = "off";
+                default-state = "on";
+                linux,default-trigger = "heartbeat";
             };
         };
 
