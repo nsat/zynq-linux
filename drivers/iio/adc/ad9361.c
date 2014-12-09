@@ -7126,7 +7126,6 @@ static struct ad9361_phy_platform_data
 	ad9361_of_get_u32(iodev, np, "adi,txmon-2-lo-cm", 48,
 			&pdata->txmon_ctrl.tx2_mon_lo_cm);
 
-
 	return pdata;
 }
 #else
@@ -7191,6 +7190,37 @@ static int ad9361_probe(struct spi_device *spi)
 	if (phy->pdata == NULL)
 		return -EINVAL;
 
+    /* power up! */
+    phy->pdata->pwr_5v_gpio = devm_gpiod_get(&spi->dev, "pwr5");
+    if (!IS_ERR(phy->pdata->pwr_5v_gpio)) {
+        ret = gpiod_direction_output(phy->pdata->pwr_5v_gpio, 1);
+        gpiod_set_value(phy->pdata->pwr_5v_gpio, 0);
+        dev_info(&spi->dev, "%s : disabled 5V power", __func__);
+        mdelay(10);
+    }
+    phy->pdata->pwr_1p3v_gpio = devm_gpiod_get(&spi->dev, "pwr1p3");
+    if (!IS_ERR(phy->pdata->pwr_1p3v_gpio)) {
+        ret = gpiod_direction_output(phy->pdata->pwr_1p3v_gpio, 1);
+        gpiod_set_value(phy->pdata->pwr_1p3v_gpio, 1);
+        dev_info(&spi->dev, "%s : enabled 1.3V power", __func__);
+        mdelay(10);
+    }
+    phy->pdata->en_tcxo_gpio = devm_gpiod_get(&spi->dev, "tcxo");
+    if (!IS_ERR(phy->pdata->en_tcxo_gpio)) {
+        ret = gpiod_direction_output(phy->pdata->en_tcxo_gpio, 1);
+        gpiod_set_value(phy->pdata->en_tcxo_gpio, 1);
+        dev_info(&spi->dev, "%s : enabled TCXO power", __func__);
+        mdelay(10);
+    }
+    phy->pdata->en_pa_gpio = devm_gpiod_get(&spi->dev, "pa");
+    if (!IS_ERR(phy->pdata->en_pa_gpio)) {
+        ret = gpiod_direction_output(phy->pdata->en_pa_gpio, 1);
+        gpiod_set_value(phy->pdata->en_pa_gpio, 0);
+        dev_info(&spi->dev, "%s : disabled PA power", __func__);
+    }
+
+    /* end power up */
+
 	phy->pdata->reset_gpio = devm_gpiod_get(&spi->dev, "reset");
 	if (!IS_ERR(phy->pdata->reset_gpio)) {
 		ret = gpiod_direction_output(phy->pdata->reset_gpio, 1);
@@ -7207,7 +7237,7 @@ static int ad9361_probe(struct spi_device *spi)
 		ret = gpiod_direction_output(phy->pdata->cal_sw1_gpio, 0);
 	}
 
-	phy->pdata->cal_sw2_gpio= devm_gpiod_get(&spi->dev, "cal-sw2");
+	phy->pdata->cal_sw2_gpio = devm_gpiod_get(&spi->dev, "cal-sw2");
 	if (!IS_ERR(phy->pdata->cal_sw2_gpio)) {
 		ret = gpiod_direction_output(phy->pdata->cal_sw2_gpio, 0);
 	}

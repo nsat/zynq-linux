@@ -3111,6 +3111,14 @@ struct ad9361_phy_platform_data {
 	struct gpio_desc			*cal_sw1_gpio;
 	struct gpio_desc			*cal_sw2_gpio;
 
+    /* Nick Foster for Spire 12/8/2014
+     * Modifications to allow control of 5V, 1.3V,
+     * TCXO power, and PA power */
+    struct gpio_desc *en_pa_gpio;
+    struct gpio_desc *en_tcxo_gpio;
+    struct gpio_desc *pwr_5v_gpio;
+    struct gpio_desc *pwr_1p3v_gpio;
+
 };
 
 struct rf_rx_gain {
