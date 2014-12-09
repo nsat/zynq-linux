@@ -83,7 +83,7 @@
         #address-cells = <0x1>;
         #size-cells = <0x1>;
         ranges;
-		axi_ad9361_adc: axi-ad9361@79020000 {
+        cf_ad9361_adc_core_0: cf-ad9361-lpc@79020000 {
 			compatible = "adi,axi-ad9361-6.00.a";
 			reg = <0x79020000 0x6000>;
             dmas = <&axi_ad9361_adc_dma 0>;
@@ -101,13 +101,10 @@
             reset-gpios = <&ps7_gpio_0 79 0>;
             enable-gpios = <&ps7_gpio_0 80 0>;
             txnrx-gpios = <&ps7_gpio_0 81 0>;
+
 		} ;
-/* TODO: find out if this is necessary to bring back into your img, or
- * to remove from the devtree
- */
-/*
-        axi_ad9361_dac: axi-ad9361@79024000 {
-            compatible = "adi,axi-ad9374-dds-6.00.a";
+        cf_ad9361_dac_core_0: cf-ad9361-dds-core-lpc@79024000 {
+            compatible = "adi,axi-ad9364-dds-6.00.a";
             reg = <0x79024000 0x1000>;
             clocks = <&adc0_ad9364 13>;
             clock-names = "sampl_clk";
@@ -124,8 +121,8 @@
             xlnx,slv-dwidth = <0x20>;
             xlnx,use-wstrb = <0x0>;
         } ;
-*/
-		axi_ad9361_adc_dma: axi-dmac@7c400000 {
+
+        axi_ad9361_adc_dma: axi-dmac@7c400000 {
 			reg = <0x7c400000 0x10000>;
 			compatible = "adi,axi-dmac-1.00.a";
             #dma-cells = <1>;
