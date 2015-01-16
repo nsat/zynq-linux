@@ -119,7 +119,7 @@ struct ad9361_rf_phy {
 	struct refclk_scale	clk_priv[NUM_AD9361_CLKS];
 	struct clk_onecell_data	clk_data;
 	struct ad9361_phy_platform_data *pdata;
-	struct ad9361_debugfs_entry debugfs_entry[146];
+	struct ad9361_debugfs_entry debugfs_entry[154];
 	struct bin_attribute 	bin;
 	struct iio_dev 		*indio_dev;
 	struct work_struct 	work;
@@ -7126,6 +7126,11 @@ static struct ad9361_phy_platform_data
 	ad9361_of_get_u32(iodev, np, "adi,txmon-2-lo-cm", 48,
 			&pdata->txmon_ctrl.tx2_mon_lo_cm);
 
+    ad9361_of_get_bool(iodev, np, "adi,pwr5-enable", &pdata->en_5v);
+    ad9361_of_get_bool(iodev, np, "adi,pwr1p3-enable", &pdata->en_1p3v);
+    ad9361_of_get_bool(iodev, np, "adi,pa-enable", &pdata->en_pa);
+    ad9361_of_get_bool(iodev, np, "adi,tcxo-enable", &pdata->en_tcxo);
+
 	return pdata;
 }
 #else
@@ -7194,31 +7199,30 @@ static int ad9361_probe(struct spi_device *spi)
     phy->pdata->pwr_5v_gpio = devm_gpiod_get(&spi->dev, "pwr5");
     if (!IS_ERR(phy->pdata->pwr_5v_gpio)) {
         ret = gpiod_direction_output(phy->pdata->pwr_5v_gpio, 1);
-        gpiod_set_value(phy->pdata->pwr_5v_gpio, 0);
-        dev_info(&spi->dev, "%s : disabled 5V power", __func__);
-        mdelay(10);
-    }
-    phy->pdata->pwr_1p3v_gpio = devm_gpiod_get(&spi->dev, "pwr1p3");
-    if (!IS_ERR(phy->pdata->pwr_1p3v_gpio)) {
-        ret = gpiod_direction_output(phy->pdata->pwr_1p3v_gpio, 1);
-        gpiod_set_value(phy->pdata->pwr_1p3v_gpio, 1);
-        dev_info(&spi->dev, "%s : enabled 1.3V power", __func__);
+        gpiod_set_value(phy->pdata->pwr_5v_gpio, phy->pdata->en_5v);
+        dev_info(&spi->dev, "%s : set 5V power to %d", __func__, phy->pdata->en_5v);
         mdelay(10);
     }
     phy->pdata->en_tcxo_gpio = devm_gpiod_get(&spi->dev, "tcxo");
     if (!IS_ERR(phy->pdata->en_tcxo_gpio)) {
         ret = gpiod_direction_output(phy->pdata->en_tcxo_gpio, 1);
-        gpiod_set_value(phy->pdata->en_tcxo_gpio, 1);
-        dev_info(&spi->dev, "%s : enabled TCXO power", __func__);
+        gpiod_set_value(phy->pdata->en_tcxo_gpio, phy->pdata->en_tcxo);
+        dev_info(&spi->dev, "%s : set TCXO power to %d", __func__, phy->pdata->en_tcxo);
+        mdelay(10);
+    }
+    phy->pdata->pwr_1p3v_gpio = devm_gpiod_get(&spi->dev, "pwr1p3");
+    if (!IS_ERR(phy->pdata->pwr_1p3v_gpio)) {
+        ret = gpiod_direction_output(phy->pdata->pwr_1p3v_gpio, 1);
+        gpiod_set_value(phy->pdata->pwr_1p3v_gpio, phy->pdata->en_1p3v);
+        dev_info(&spi->dev, "%s : set 1.3V power to %d", __func__, phy->pdata->en_1p3v);
         mdelay(10);
     }
     phy->pdata->en_pa_gpio = devm_gpiod_get(&spi->dev, "pa");
     if (!IS_ERR(phy->pdata->en_pa_gpio)) {
-        ret = gpiod_direction_output(phy->pdata->en_pa_gpio, 1);
-        gpiod_set_value(phy->pdata->en_pa_gpio, 0);
-        dev_info(&spi->dev, "%s : disabled PA power", __func__);
+        ret = gpiod_direction_output(phy->pdata->en_pa_gpio, phy->pdata->en_pa);
+        gpiod_set_value(phy->pdata->en_pa_gpio, phy->pdata->en_pa);
+        dev_info(&spi->dev, "%s : set PA power to %d", __func__, phy->pdata->en_pa);
     }
-
     /* end power up */
 
 	phy->pdata->reset_gpio = devm_gpiod_get(&spi->dev, "reset");

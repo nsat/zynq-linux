@@ -3118,6 +3118,10 @@ struct ad9361_phy_platform_data {
     struct gpio_desc *en_tcxo_gpio;
     struct gpio_desc *pwr_5v_gpio;
     struct gpio_desc *pwr_1p3v_gpio;
+    bool en_pa;
+    bool en_tcxo;
+    bool en_5v;
+    bool en_1p3v;
 
 };
 
