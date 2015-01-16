@@ -83,10 +83,37 @@
         #address-cells = <0x1>;
         #size-cells = <0x1>;
         ranges;
+
+        rx_dma: dma@7c400000 {
+			reg = <0x7c400000 0x10000>;
+			compatible = "adi,axi-dmac-1.00.a";
+            #dma-cells = <1>;
+			interrupt-parent = <&ps7_scugic_0>;
+			interrupts = <0 57 0>;
+            clocks = <&clkc 16>;
+            dma-channel {
+                adi,buswidth = <64>;
+                adi,type = <0>;
+            };
+		} ;
+		tx_dma: dma@7c420000 {
+			reg = <0x7c420000 0x10000>;
+			compatible = "adi,axi-dmac-1.00.a";
+            #dma-cells = <1>;
+			interrupt-parent = <&ps7_scugic_0>;
+			interrupts = <0 56 0>;
+            clocks = <&clkc 16>;
+            dma-channel {
+                adi,buswidth = <64>;
+                adi,type = <1>;
+                adi,cyclic;
+            };
+		} ;
+
         cf_ad9361_adc_core_0: cf-ad9361-lpc@79020000 {
 			compatible = "adi,axi-ad9361-6.00.a";
 			reg = <0x79020000 0x6000>;
-            dmas = <&axi_ad9361_adc_dma 0>;
+            dmas = <&rx_dma 0>;
             dma-names = "rx";
             spibus-connected = <&adc0_ad9364>;
             xlnx,dphase-timeout = <0x8>;
@@ -110,7 +137,7 @@
             clock-names = "sampl_clk";
             adi,axi-dds-rate = <1>;
             adi,axi-dds-1-rf-channel;
-            dmas = <&axi_ad9361_dac_dma 0>;
+            dmas = <&tx_dma 0>;
             dma-names = "tx";
             dac-sample-frequency = <491520000>;
             xlnx,dphase-timeout = <0x8>;
@@ -121,32 +148,6 @@
             xlnx,slv-dwidth = <0x20>;
             xlnx,use-wstrb = <0x0>;
         } ;
-
-        axi_ad9361_adc_dma: axi-dmac@7c400000 {
-			reg = <0x7c400000 0x10000>;
-			compatible = "adi,axi-dmac-1.00.a";
-            #dma-cells = <1>;
-			interrupt-parent = <&ps7_scugic_0>;
-			interrupts = <0 57 0>;
-            clocks = <&clkc 16>;
-            dma-channel {
-                adi,buswidth = <64>;
-                adi,type = <0>;
-            };
-		} ;
-		axi_ad9361_dac_dma: axi-dmac@7c420000 {
-			reg = <0x7c420000 0x10000>;
-			compatible = "adi,axi-dmac-1.00.a";
-            #dma-cells = <1>;
-			interrupt-parent = <&ps7_scugic_0>;
-			interrupts = <0 56 0>;
-            clocks = <&clkc 16>;
-            dma-channel {
-                adi,buswidth = <64>;
-                adi,type = <1>;
-                adi,cyclic;
-            };
-		} ;
     };
 
 	ps7_axi_interconnect_0: amba@0 {
@@ -172,19 +173,23 @@
 			reg = <0xf800b000 0x1000>;
 		} ;
 		ps7_can_0: ps7-can@e0008000 {
-			clock-names = "ref_clk", "aper_clk";
+			clock-names = "can_clk", "pclk";
 			clocks = <&clkc 19>, <&clkc 36>;
-			compatible = "xlnx,ps7-can-1.00.a", "xlnx,ps7-can";
+			compatible = "xlnx,zynq-can-1.0", "xlnx,ps7-can", "xlnx,zynq-can-1.00-a";
 			interrupt-parent = <&ps7_scugic_0>;
 			interrupts = <0 28 4>;
+            rx-fifo-depth = <0x40>;
+            tx-fifo-depth = <0x40>;
 			reg = <0xe0008000 0x1000>;
 		} ;
 		ps7_can_1: ps7-can@e0009000 {
-			clock-names = "ref_clk", "aper_clk";
+			clock-names = "can_clk", "pclk";
 			clocks = <&clkc 20>, <&clkc 37>;
-			compatible = "xlnx,ps7-can-1.00.a", "xlnx,ps7-can";
+			compatible = "xlnx,zynq-can-1.0", "xlnx,ps7-can", "xlnx,zynq-can-1.00-a";
 			interrupt-parent = <&ps7_scugic_0>;
 			interrupts = <0 51 4>;
+            rx-fifo-depth = <0x40>;
+            tx-fifo-depth = <0x40>;
 			reg = <0xe0009000 0x1000>;
 		} ;
 		ps7_ddrc_0: ps7-ddrc@f8006000 {
