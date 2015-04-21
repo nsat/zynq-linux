@@ -14,6 +14,8 @@
  * XPS project directory: device-tree_bsp_0
  */
 
+#include <dt-bindings/gpio/gpio.h>
+
 /dts-v1/;
 / {
 	#address-cells = <1>;
@@ -78,12 +80,66 @@
 		reg-names = "cpu0", "cpu1";
 	} ;
 
+    gpio-leds {
+        compatible = "gpio-leds";
+        led-health {
+            label = "led-health";
+            gpios = <&ps7_gpio_0 9 GPIO_ACTIVE_HIGH>;
+            default-state = "off";
+        };
+        led-l13 {
+            label = "led-l13";
+            gpios = <&ps7_gpio_0 0 GPIO_ACTIVE_HIGH>;
+            default-state = "on";
+            linux,default-trigger = "heartbeat";
+        };
+    };
+/* Putting the daughterboard enables here.
+* The regulator-gpio interface allows
+* both software control and default states at boot. 
+* Note: EMIO GPIOs start at GPIO54. */
+    db1p3en: fixedregulator@0 {
+        compatible = "regulator-fixed";
+        regulator-name = "Flash DB 1.3V regulator";
+        regulator-type = "voltage";
+        regulator-boot-on;
+        regulator-always-on;
+        gpio = <&ps7_gpio_0 57 GPIO_ACTIVE_HIGH>;
+        enable-active-high;
+    };
+
+    db5p0en: fixedregulator@1 {
+        compatible = "regulator-fixed";
+        regulator-name = "Flash DB 5V regulator";
+        regulator-type = "voltage";
+        gpio = <&ps7_gpio_0 56 GPIO_ACTIVE_HIGH>;
+        enable-active-high;
+    };
+
+    dbrxen: fixedregulator@2 {
+        compatible = "regulator-fixed";
+        regulator-name = "Flash DB RX enable";
+        regulator-type = "voltage";
+        regulator-boot-on;
+        regulator-always-on;
+        gpio = <&ps7_gpio_0 55 GPIO_ACTIVE_HIGH>;
+        enable-active-high;
+    };
+
+    dbpaen: fixedregulator@3 {
+        compatible = "regulator-fixed";
+        regulator-name = "Flash DB PA enable";
+        regulator-type = "voltage";
+        gpio = <&ps7_gpio_0 54 GPIO_ACTIVE_HIGH>;
+        enable-active-high;
+    };
+
     fpga_axi: fpga-axi@0 {
         compatible = "simple-bus";
         #address-cells = <0x1>;
         #size-cells = <0x1>;
         ranges;
-/*
+
         rx_dma: dma@7c400000 {
 			reg = <0x7c400000 0x10000>;
 			compatible = "adi,axi-dmac-1.00.a";
@@ -109,7 +165,7 @@
                 adi,cyclic;
             };
 		} ;
-*/
+/*
 	    ad9361@79020000 {
 	    	compatible = "dmem-uio";
 	    	reg = <0x79020000 0x6000>;
@@ -126,7 +182,7 @@
             uio,number-of-dynamic-regions = <1>;
             uio,dynamic-regions-sizes = <262144>;
         };
-/*
+*/
         cf_ad9361_adc_core_0: cf-ad9361-lpc@79020000 {
 			compatible = "adi,axi-ad9361-6.00.a";
 			reg = <0x79020000 0x6000>;
@@ -165,7 +221,7 @@
             xlnx,slv-dwidth = <0x20>;
             xlnx,use-wstrb = <0x0>;
         } ;
-    */
+
     };
 
 	ps7_axi_interconnect_0: amba@0 {
@@ -281,54 +337,6 @@
 			interrupts = <0 20 4>;
 			reg = <0xe000a000 0x1000>;
 		} ;
-            /* Named GPIOs, nonspecific (as named on motherboard)
-             * linux-gpio currently doesn't appear to support any
-             * method of aliasing GPIO names, so we comment this out
-             * for now.
-             */
-/*
-        named_gpios {
-            fmc_gpios = <&ps7_gpio_0 54 0>,
-                        <&ps7_gpio_0 55 0>,
-                        <&ps7_gpio_0 56 0>,
-                        <&ps7_gpio_0 57 0>,
-                        <&ps7_gpio_0 58 0>,
-                        <&ps7_gpio_0 59 0>,
-                        <&ps7_gpio_0 60 0>,
-                        <&ps7_gpio_0 61 0>,
-                        <&ps7_gpio_0 62 0>,
-                        <&ps7_gpio_0 63 0>,
-                        <&ps7_gpio_0 64 0>;
-
-            fmc_status_gpios = <&ps7_gpio_0 65 0>,
-                                <&ps7_gpio_0 66 0>,
-                                <&ps7_gpio_0 67 0>,
-                                <&ps7_gpio_0 68 0>,
-                                <&ps7_gpio_0 69 0>,
-                                <&ps7_gpio_0 70 0>,
-                                <&ps7_gpio_0 71 0>,
-                                <&ps7_gpio_0 72 0>;
-
-            fmc_ctrl_gpios = <&ps7_gpio_0 73 0>,
-                                <&ps7_gpio_0 74 0>,
-                                <&ps7_gpio_0 75 0>,
-                                <&ps7_gpio_0 76 0>;
-        };
-*/
-        gpio-leds {
-            compatible = "gpio-leds";
-            led-health {
-                label = "led-health";
-                gpios = <&ps7_gpio_0 9 0>;
-                default-state = "off";
-            };
-            led-l13 {
-                label = "led-l13";
-                gpios = <&ps7_gpio_0 0 0>;
-                default-state = "on";
-                linux,default-trigger = "heartbeat";
-            };
-        };
 
 		ps7_i2c_0: ps7-i2c@e0004000 {
 			bus-id = <0>;
@@ -480,22 +488,23 @@
 			interrupt-parent = <&ps7_scugic_0>;
 			interrupts = <0 24 4>;
 			reg = <0xe0100000 0x1000>;
-			xlnx,has-cd = <0x0>;
+			xlnx,has-cd = <0x1>;
 			xlnx,has-power = <0x0>;
-			xlnx,has-wp = <0x0>;
+			xlnx,has-wp = <0x1>;
 		} ;
+/*
 		ps7_sd_1: ps7-sdio@e0101000 {
 			clock-frequency = <50000000>;
 			clock-names = "clk_xin", "clk_ahb";
 			clocks = <&clkc 22>, <&clkc 33>;
-			compatible = "xlnx,ps7-sdio-1.00.a", "generic-sdhci", "arasan,sdhci-8.9a";
+			compatible = "xlnx,ps7-sdio-1.00.a", "arasan,sdhci-8.9a";
 			interrupt-parent = <&ps7_scugic_0>;
 			interrupts = <0 47 4>;
 			reg = <0xe0101000 0x1000>;
-			xlnx,has-cd = <0x1>;
+			xlnx,has-cd = <0x0>;
 			xlnx,has-power = <0x0>;
 			xlnx,has-wp = <0x0>;
-		} ;
+		} ;*/
 		ps7_slcr_0: ps7-slcr@f8000000 {
 			compatible = "xlnx,ps7-slcr-1.00.a", "xlnx,zynq-slcr", "syscon";
 			reg = <0xf8000000 0x1000>;
@@ -549,7 +558,7 @@
             speed-hz = <100000000>;
 		} ;
 		ps7_uart_1: serial@e0001000 {
-			clock-names = "ref_clk", "aper_clk";
+			clock-names = "uart_clk", "pclk";
 			clocks = <&clkc 24>, <&clkc 41>;
 			compatible = "xlnx,ps7-uart-1.00.a", "xlnx,xuartps";
 			current-speed = <115200>;
