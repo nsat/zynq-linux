@@ -107,7 +107,7 @@
         gpio = <&ps7_gpio_0 57 GPIO_ACTIVE_HIGH>;
         enable-active-high;
     };
-
+/*
     db5p0en: fixedregulator@1 {
         compatible = "regulator-fixed";
         regulator-name = "Flash DB 5V regulator";
@@ -133,7 +133,7 @@
         gpio = <&ps7_gpio_0 54 GPIO_ACTIVE_HIGH>;
         enable-active-high;
     };
-
+*/
     fpga_axi: fpga-axi@0 {
         compatible = "simple-bus";
         #address-cells = <0x1>;
@@ -167,8 +167,8 @@
 		} ;
 /*
 	    ad9361@79020000 {
-	    	compatible = "dmem-uio";
-	    	reg = <0x79020000 0x6000>;
+            compatible = "dmem-uio";
+            reg = <0x79020000 0x6000>;
 	    };
         rx_dma@7c400000 {
             compatible = "dmem-uio";
@@ -196,11 +196,11 @@
             xlnx,slv-awidth = <0x20>;
             xlnx,slv-dwidth = <0x20>;
             xlnx,use-wstrb = <0x0>;
-            en_agc-gpios = <&ps7_gpio_0 77 0>;
-            sync-gpios = <&ps7_gpio_0 78 0>;
-            reset-gpios = <&ps7_gpio_0 79 0>;
-            enable-gpios = <&ps7_gpio_0 80 0>;
-            txnrx-gpios = <&ps7_gpio_0 81 0>;
+            en_agc-gpios = <&ps7_gpio_0 77 GPIO_ACTIVE_HIGH>;
+            sync-gpios = <&ps7_gpio_0 78 GPIO_ACTIVE_HIGH>;
+            reset-gpios = <&ps7_gpio_0 79 GPIO_ACTIVE_HIGH>;
+            enable-gpios = <&ps7_gpio_0 80 GPIO_ACTIVE_HIGH>;
+            txnrx-gpios = <&ps7_gpio_0 81 GPIO_ACTIVE_HIGH>;
 
 		} ;
         cf_ad9361_dac_core_0: cf-ad9361-dds-core-lpc@79024000 {
@@ -330,7 +330,7 @@
 			clocks = <&clkc 42>;
 			compatible = "xlnx,ps7-gpio-1.00.a", "xlnx,zynq-gpio-1.0";
 			emio-gpio-width = <64>;
-			gpio-controller ;
+			gpio-controller;
 			gpio-mask-high = <0x0>;
 			gpio-mask-low = <0x5600>;
 			interrupt-parent = <&ps7_scugic_0>;
@@ -355,6 +355,11 @@
                 reg = <0x50>;
                 pagesize = <16>;
             };
+            fmc_temp0: tmp102@48 {
+                compatible = "ti,tmp102";
+                reg = <0x48>;
+            };
+
 		} ;
 		ps7_i2c_1: ps7-i2c@e0005000 {
 			bus-id = <1>;
@@ -384,6 +389,15 @@
             temp1: tmp102@4b {
                 compatible = "ti,tmp102";
                 reg = <0x4b>;
+            };
+            temp2: tmp102@49 {
+                compatible = "ti,tmp102";
+                reg = <0x49>;
+            };
+            vrf_current: ina219@40 {
+                compatible = "ti,ina219";
+                reg = <0x40>;
+                shunt-resistor = <10000>;
             };
 		} ;
 		ps7_iop_bus_config_0: ps7-iop-bus-config@e0200000 {
